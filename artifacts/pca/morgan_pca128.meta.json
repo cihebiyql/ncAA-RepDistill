@@ -1,0 +1,8 @@
+{
+  "input": "data/prepared/pretrain/train_sequences_with_rdkit2d.csv",
+  "smiles_col": "smiles",
+  "radius": 2,
+  "n_bits": 2048,
+  "n_components": 128,
+  "explained_variance_ratio_sum": 1.0000000039420953
+}

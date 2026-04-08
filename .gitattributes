@@ -1,0 +1,5 @@
+# Track large training assets via Git LFS where needed
+*.pt filter=lfs diff=lfs merge=lfs -text
+artifacts/pca/*.joblib filter=lfs diff=lfs merge=lfs -text
+data/raw/pretrain/uniref_lt30_c30/*.csv filter=lfs diff=lfs merge=lfs -text
+data/prepared/pretrain/*.csv filter=lfs diff=lfs merge=lfs -text

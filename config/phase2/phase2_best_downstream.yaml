@@ -1,0 +1,188 @@
+run_id: phase2_best_downstream_e30
+description: >-
+  Phase2 high-performing downstream setting: e30 budget with discriminative LR,
+  weight_decay=0.01, random_smiles mix_ratio=0.3, and auxiliary fingerprint dropout=0.1.
+seed: 42
+
+device:
+  gpu_id: 0
+
+data:
+  paths:
+    vocab_smiles: data/raw/adaptation/vocab_smiles.txt
+    train_data: data/raw/phase2_split/adapt_train.csv
+    val_data: data/raw/phase2_split/adapt_val.csv
+  batch_size: 8
+  num_workers: 12
+  pin_memory: true
+  augmentation:
+    random_smiles:
+      enabled: true
+      mix_ratio: 0.3
+      num_variants: 2
+    smiles_mask:
+      enabled: true
+      mask_prob: 0.15
+  consistency:
+    enabled: true
+    num_variants: 2
+    max_cache_size: 50000
+    max_tries_per_variant: 20
+
+student:
+  resume_from: artifacts/checkpoints/phase1_mainline_epoch30.pt
+  load_weights_only: true
+  smiles_encoder:
+    vocab_size: 37
+    embed_dim: 768
+    num_layers: 13
+    num_heads: 12
+    max_length: 768
+    dropout: 0.12
+  projection:
+    esm2_dim: 1280
+    chemberta_dim: 2048
+  graph_attention:
+    enabled: true
+    max_distance: 8
+    bias_mode: per_head
+    cache_size: 50000
+  contrastive_proj:
+    enabled: false
+    output_dim: 256
+    hidden_dim: 768
+    dropout: 0.1
+  use_smiles_mlm: true
+
+teacher:
+  esm2:
+    use_feature_cache: false
+    hidden_dim: 640
+  chemberta:
+    use_feature_cache: true
+    feature_cache_path: data/teacher_cache/phase2/geminimol_adapt
+    hidden_dim: 2048
+    id_keys: [sample_ids, row_index, row_indices]
+
+loss:
+  weights:
+    protein: 0.0
+    molecular: 0.85
+    self: 0.1
+    task: 0.1
+    consistency: 0.02
+    rkd: 0.0
+    contrastive: 0.0
+    task_fp: 0.06
+  contrastive:
+    enabled: false
+    apply_to: [molecular]
+    tau: 0.07
+    symmetric: true
+  rkd:
+    enabled: false
+    apply_to: [molecular]
+    distance_weight: 1.0
+    angle_weight: 0.0
+    distance_normalize: mean
+    distance_loss_type: smooth_l1
+    angle_loss_type: smooth_l1
+    angle_max_triplets: null
+  task_supervision:
+    enabled: true
+    feature_type: smiles_repr
+    head_type: linear
+    mlp_hidden_dim: 256
+    dropout: 0.0
+    tasks: [MolLogP, TPSA, qed, NumHDonors, NumHAcceptors, NumRotatableBonds]
+    task_weights:
+      MolLogP: 1.0
+      TPSA: 1.0
+      qed: 1.0
+      NumHDonors: 1.0
+      NumHAcceptors: 1.0
+      NumRotatableBonds: 1.0
+    detach_features: false
+    normalization:
+      enabled: true
+      type: zscore
+  consistency:
+    enabled: true
+    apply_to: smiles_repr
+    method: cosine
+    tau: 0.07
+    symmetric: true
+  task_supervision_aux:
+    enabled: true
+    label_source: morgan_fp
+    loss_type: bce
+    feature_type: smiles_mean_pool
+    head_type: linear
+    mlp_hidden_dim: 256
+    dropout: 0.1
+    fingerprint:
+      radius: 2
+      n_bits: 2048
+      use_features: false
+      use_chirality: true
+      cache_dir: data_cache/fingerprints
+      overwrite_cache: false
+      drop_constant_bits: true
+    bce:
+      use_pos_weight: true
+      pos_weight_clip_min: 0.1
+      pos_weight_clip_max: 50.0
+    tasks: null
+    task_weights: {}
+    detach_features: false
+    normalization:
+      enabled: false
+
+phase3_probe:
+  enabled: false
+
+training:
+  epochs: 30
+  gradient_accumulation_steps: 2
+  max_grad_norm: 1.0
+  mixed_precision:
+    enabled: true
+    use_grad_scaler: false
+  gradient_checkpointing:
+    enabled: false
+  optimizer:
+    type: adamw
+    lr: 0.0002
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+    scheduler:
+      type: cosine
+      warmup_steps: 400
+      min_lr: 0.000001
+    discriminative_lr:
+      enabled: true
+      backbone_lr_scale: 0.05
+  ema:
+    enabled: true
+    decay: 0.999
+    use_for_eval: true
+  log_interval: 50
+  val_interval_epochs: 1
+  save_interval_epochs: 5
+  output_dir: runs/phase2_best_downstream_e30/phase2_train
+  resume_from: null
+
+evaluation:
+  best_metric: val_loss
+  best_metric_mode: min
+
+fusion:
+  enabled: true
+  mode: residual_distill
+  target: geminimol
+  hs_source: molecular_proj
+  proj_dim: 2048
+  start_epoch: 0
+  loss_weight: 0.2
+  stop_grad_hs: true
+  freeze_smiles: false

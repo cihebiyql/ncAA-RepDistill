@@ -1,0 +1,14 @@
+phase3_feature_extraction:
+  script: scripts/extract_phase3_features.py
+  config: config/phase2/phase2_best_downstream.yaml
+  checkpoint: runs/phase2_best_downstream_e30/phase2_train/checkpoints/best.pt
+  output_dir: features/phase3_best_downstream_molecular_proj
+  feature_type: molecular_proj
+  data_dir: data/raw/downstream
+  train_csv: data/raw/downstream/ncaa_cpp_train.csv
+  val_csv: data/raw/downstream/ncaa_cpp_val.csv
+  test_csv: data/raw/downstream/ncaa_cpp_test.csv
+  label_col: Permeability
+  id_col: CycPeptMPDB_ID
+  batch_size: 64
+  num_workers: 4

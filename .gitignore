@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Runtime outputs
+runs/
+features/
+results/
+logs/
+
+# Local cache
+data_cache/
+
+# Large checkpoints (keep path, not blob by default)
+artifacts/checkpoints/*.pt
+
+# Optional local symlinked caches
+data/teacher_cache/phase1/esm2
+data/teacher_cache/phase1/chemberta
+data/teacher_cache/phase1/esm2/*
+data/teacher_cache/phase1/chemberta/*

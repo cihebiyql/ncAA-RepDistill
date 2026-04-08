@@ -1,0 +1,7 @@
+dataset,split,rows_total,rows_parse_ok,rows_parse_fail,rows_supported_measure,rows_unsupported_measure,rows_consistency_checked,rows_consistent_with_affinity_col,rows_inconsistent_with_affinity_col,rows_positive,rows_negative,rows_ambiguous,rows_labeled,rows_binary_output,labeled_rate,positive_rate_in_labeled,negative_rate_in_labeled
+aa_binding,train,1264,1264,0,1264,0,1264,1264,0,474,471,319,945,945,0.747626582278481,0.5015873015873016,0.4984126984126984
+aa_binding,val,271,271,0,271,0,271,271,0,108,108,55,216,216,0.7970479704797048,0.5,0.5
+aa_binding,test,271,271,0,271,0,271,271,0,109,90,72,199,199,0.7343173431734318,0.5477386934673367,0.45226130653266333
+ncaa_binding,train,200,200,0,200,0,200,200,0,101,58,41,159,159,0.795,0.6352201257861635,0.36477987421383645
+ncaa_binding,val,43,43,0,43,0,43,43,0,26,9,8,35,35,0.813953488372093,0.7428571428571429,0.2571428571428571
+ncaa_binding,test,43,43,0,43,0,43,43,0,25,10,8,35,35,0.813953488372093,0.7142857142857143,0.2857142857142857

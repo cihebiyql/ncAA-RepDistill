@@ -1,0 +1,12 @@
+regression_benchmark:
+  script: scripts/evaluate_regression.py
+  feature_dir: features/phase3_best_downstream_molecular_proj
+  output_dir: results/downstream/ncaa_cpp_strict
+  alpha_grid: [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+  bootstrap_n: 1000
+  mlp_hidden_dims: [256]
+  mlp_dropout: 0.1
+  mlp_lr: 0.001
+  mlp_weight_decay: 0.0001
+  mlp_epochs: 400
+  mlp_patience: 40
